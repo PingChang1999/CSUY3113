@@ -28,8 +28,8 @@ glm::vec3 player2_position = glm::vec3(0, 0, 0);
 glm::vec3 player1_movement = glm::vec3(0, 0, 0);
 glm::vec3 player2_movement = glm::vec3(0, 0, 0);
 
-float player1_speed = 1.5f;
-float player2_speed = 1.5f;
+float player1_speed = 2.0f;
+float player2_speed = 2.0f;
 
 bool vertical = 0;
 bool horizontal = 0;
@@ -40,8 +40,8 @@ float paddle1_w = 0.5f;
 float paddle2_h = 1.1f;
 float paddle2_w = 0.5f;
 
-float ball_h = 1.0f;
-float ball_w = 1.0f;
+float ball_h = 0.3f;
+float ball_w = 0.3f;
 
 float ball_x = 0.0f;
 float ball_y = 0.0f;
@@ -173,12 +173,16 @@ void Update() {
     // Add (direction * units per second * elapsed time)
     player1_position += player1_movement * player1_speed * deltaTime;
     player1Matrix = glm::mat4(1.0f);
-    player1Matrix = glm::translate(player1Matrix, glm::vec3(-4.7f, 0.0f, 0.0f));
+    player1_position.x = -4.75f;
     if (player1_position.y > 3.35) {
-        player1Matrix = glm::translate(player1Matrix, glm::vec3(0.0f, 3.35f, 0.0f));
+        player1_position.x = -4.75f;
+        player1_position.y = 3.35f;
+        player1Matrix = glm::translate(player1Matrix, glm::vec3(-4.75f, 3.35f, 0.0f));
     }
     else if (player1_position.y < -3.35) {
-        player1Matrix = glm::translate(player1Matrix, glm::vec3(0.0f, -3.35f, 0.0f));
+        player1_position.x = -4.75f;
+        player1_position.y = -3.35f;
+        player1Matrix = glm::translate(player1Matrix, glm::vec3(-4.75f, -3.35f, 0.0f));
     }
     else {
         player1Matrix = glm::translate(player1Matrix, player1_position);
@@ -187,12 +191,16 @@ void Update() {
     //player2Matrix
     player2_position += player2_movement * player2_speed * deltaTime;
     player2Matrix = glm::mat4(1.0f);
-    player2Matrix = glm::translate(player2Matrix, glm::vec3(4.7f, 0.0f, 0.0f));
+    player2_position.x = 4.75f;
     if (player2_position.y > 3.35) {
-        player2Matrix = glm::translate(player2Matrix, glm::vec3(0.0f, 3.35f, 0.0f));
+        player2_position.x = 4.75f;
+        player2_position.y = 3.35f;
+        player2Matrix = glm::translate(player2Matrix, glm::vec3(4.75f, 3.35f, 0.0f));
     }
     else if (player2_position.y < -3.35) {
-        player2Matrix = glm::translate(player2Matrix, glm::vec3(0.0f, -3.35f, 0.0f));
+        player2_position.x = 4.75f;
+        player2_position.y = -3.35f;
+        player2Matrix = glm::translate(player2Matrix, glm::vec3(4.75f, -3.35f, 0.0f));
     }
     else {
         player2Matrix = glm::translate(player2Matrix, player2_position);
@@ -232,6 +240,10 @@ void Update() {
     }
     ballMatrix = glm::mat4(1.0f);
     ballMatrix = glm::translate(ballMatrix, glm::vec3(ball_x, ball_y, 0.0f));
+
+    if (ball_x < -5.0f || ball_x > 5.0f) {
+        gameIsRunning = false;
+    }
       
 }
 
