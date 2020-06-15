@@ -241,7 +241,7 @@ void Update() {
     ballMatrix = glm::mat4(1.0f);
     ballMatrix = glm::translate(ballMatrix, glm::vec3(ball_x, ball_y, 0.0f));
 
-    if (ball_x < -5.0f || ball_x > 5.0f) {
+    if (ball_x < -4.75f || ball_x > 4.75f) {
         gameIsRunning = false;
     }
       
