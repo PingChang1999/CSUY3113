@@ -124,8 +124,8 @@ void Entity::DrawText(ShaderProgram* program, GLuint fontTextureID, std::string 
     float width = 1.0f / 16.0f;
     float height = 1.0f / 16.0f;
 
-    //std::vector<float> vertices;
-    //std::vector<float> texCoords;
+    std::vector<float> vertices;
+    std::vector<float> texCoords;
 
     for (int i = 0; i < text.size(); i++) {
 
