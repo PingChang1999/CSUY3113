@@ -10,6 +10,7 @@
 #include "glm/mat4x4.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "ShaderProgram.h"
+#include <vector>
 
 class Entity {
 public:
@@ -43,6 +44,7 @@ public:
     int animRows = 0;
 
     bool isActive = true;
+    bool isLanded = false;
 
     bool collidedTop = false;
     bool collidedBottom = false;

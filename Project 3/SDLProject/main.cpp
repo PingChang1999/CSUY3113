@@ -114,6 +114,8 @@ void Initialize() {
 
     GLuint platformTextureID = LoadTexture("platformPack_tile041.png");
     GLuint goalTextureID = LoadTexture("platformPack_tile008.png");
+    GLuint font = LoadTexture("font1.png");
+
     //bottom
     state.platforms[0].textureID = platformTextureID;
     state.platforms[0].position = glm::vec3(-1, -3.75, 0);
@@ -121,92 +123,90 @@ void Initialize() {
     state.platforms[1].textureID = platformTextureID;
     state.platforms[1].position = glm::vec3(0, -3.75, 0);
 
-    state.platforms[2].textureID = goalTextureID;
+    state.platforms[2].textureID = platformTextureID;
     state.platforms[2].position = glm::vec3(1, -3.75, 0);
 
     state.platforms[3].textureID = platformTextureID;
     state.platforms[3].position = glm::vec3(-2, -3.75, 0);
 
-    state.platforms[4].textureID = goalTextureID;
-    state.platforms[4].position = glm::vec3(2, -3.75, 0);
+    state.platforms[4].textureID = platformTextureID;
+    state.platforms[4].position = glm::vec3(-3, -3.75, 0);
 
     state.platforms[5].textureID = platformTextureID;
-    state.platforms[5].position = glm::vec3(-3, -3.75, 0);
+    state.platforms[5].position = glm::vec3(3, -3.75, 0);
 
     state.platforms[6].textureID = platformTextureID;
-    state.platforms[6].position = glm::vec3(3, -3.75, 0);
+    state.platforms[6].position = glm::vec3(-4, -3.75, 0);
 
     state.platforms[7].textureID = platformTextureID;
-    state.platforms[7].position = glm::vec3(-4, -3.75, 0);
+    state.platforms[7].position = glm::vec3(4, -3.75, 0);
 
     state.platforms[8].textureID = platformTextureID;
-    state.platforms[8].position = glm::vec3(4, -3.75, 0);
+    state.platforms[8].position = glm::vec3(-5, -3.75, 0);
 
     state.platforms[9].textureID = platformTextureID;
-    state.platforms[9].position = glm::vec3(-5, -3.75, 0);
-
-    state.platforms[10].textureID = platformTextureID;
-    state.platforms[10].position = glm::vec3(5, -3.75, 0);
+    state.platforms[9].position = glm::vec3(5, -3.75, 0);
 
     //right
+    state.platforms[10].textureID = platformTextureID;
+    state.platforms[10].position = glm::vec3(5, -2.75, 0);
+
     state.platforms[11].textureID = platformTextureID;
-    state.platforms[11].position = glm::vec3(5, -2.75, 0);
+    state.platforms[11].position = glm::vec3(5, -1.75, 0);
 
     state.platforms[12].textureID = platformTextureID;
-    state.platforms[12].position = glm::vec3(5, -1.75, 0);
+    state.platforms[12].position = glm::vec3(5, -0.75, 0);
 
     state.platforms[13].textureID = platformTextureID;
-    state.platforms[13].position = glm::vec3(5, -0.75, 0);
+    state.platforms[13].position = glm::vec3(5, 0.25, 0);
 
     state.platforms[14].textureID = platformTextureID;
-    state.platforms[14].position = glm::vec3(5, 0.25, 0);
+    state.platforms[14].position = glm::vec3(5, 1.25, 0);
 
     state.platforms[15].textureID = platformTextureID;
-    state.platforms[15].position = glm::vec3(5, 1.25, 0);
+    state.platforms[15].position = glm::vec3(5, 2.25, 0);
 
     state.platforms[16].textureID = platformTextureID;
-    state.platforms[16].position = glm::vec3(5, 2.25, 0);
-
-    state.platforms[17].textureID = platformTextureID;
-    state.platforms[17].position = glm::vec3(5, 3.25, 0);
+    state.platforms[16].position = glm::vec3(5, 3.25, 0);
 
     //left
+    state.platforms[17].textureID = platformTextureID;
+    state.platforms[17].position = glm::vec3(-5, -2.75, 0);
+
     state.platforms[18].textureID = platformTextureID;
-    state.platforms[18].position = glm::vec3(-5, -2.75, 0);
+    state.platforms[18].position = glm::vec3(-5, -1.75, 0);
 
     state.platforms[19].textureID = platformTextureID;
-    state.platforms[19].position = glm::vec3(-5, -1.75, 0);
+    state.platforms[19].position = glm::vec3(-5, -0.75, 0);
 
     state.platforms[20].textureID = platformTextureID;
-    state.platforms[20].position = glm::vec3(-5, -0.75, 0);
+    state.platforms[20].position = glm::vec3(-5, 0.25, 0);
 
     state.platforms[21].textureID = platformTextureID;
-    state.platforms[21].position = glm::vec3(-5, 0.25, 0);
+    state.platforms[21].position = glm::vec3(-5, 1.25, 0);
 
     state.platforms[22].textureID = platformTextureID;
-    state.platforms[22].position = glm::vec3(-5, 1.25, 0);
+    state.platforms[22].position = glm::vec3(-5, 2.25, 0);
 
     state.platforms[23].textureID = platformTextureID;
-    state.platforms[23].position = glm::vec3(-5, 2.25, 0);
-
-    state.platforms[24].textureID = platformTextureID;
-    state.platforms[24].position = glm::vec3(-5, 3.25, 0);
+    state.platforms[23].position = glm::vec3(-5, 3.25, 0);
 
     //obstacle
+    state.platforms[24].textureID = platformTextureID;
+    state.platforms[24].position = glm::vec3(3, 2.25, 0);
+
     state.platforms[25].textureID = platformTextureID;
-    state.platforms[25].position = glm::vec3(3, 2.25, 0);
+    state.platforms[25].position = glm::vec3(2, 2.25, 0);
 
     state.platforms[26].textureID = platformTextureID;
-    state.platforms[26].position = glm::vec3(2, 2.25, 0);
+    state.platforms[26].position = glm::vec3(-2, -0.75, 0);
 
     state.platforms[27].textureID = platformTextureID;
-    state.platforms[27].position = glm::vec3(-2, -0.75, 0);
+    state.platforms[27].position = glm::vec3(-1, -0.75, 0);
 
-    state.platforms[28].textureID = platformTextureID;
-    state.platforms[28].position = glm::vec3(-1, -0.75, 0);
-
-
-
+    //goal
+    state.platforms[28].textureID = goalTextureID;
+    state.platforms[28].position = glm::vec3(2, -3.75, 0);
 
     for (int i = 0; i < PLATFORM_COUNT; i++) { //update platform 1 time so modelMatrix would update
         state.platforms[i].Update(0, NULL, 0);
@@ -289,6 +289,15 @@ void Update() {
 
 void Render() {
     glClear(GL_COLOR_BUFFER_BIT);
+    
+    if (state.player->isActive == false) {
+        if (state.player->isLanded == false) {
+            DrawText(&program, font, "Mission Failed", 0.5f, -0.25f, glm::vec3(-2.0f, 1.0f, 0.0f));
+        }
+        else {
+            DrawText(&program, font, "Mission Successful", 0.5f, -0.25f, glm::vec3(-2.0f, 1.0f, 0.0f));
+        }
+    }
 
     for (int i = 0; i < PLATFORM_COUNT; i++) {
         state.platforms[i].Render(&program);

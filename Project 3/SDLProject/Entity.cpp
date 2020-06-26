@@ -113,6 +113,18 @@ void Entity::Update(float deltaTime, Entity* platforms, int platformCount)
     CheckCollisionsX(platforms, platformCount); // Fix if needed
 
     //if collided with something, what was it, do what?
+    if (CheckCollision(&platforms[28])) {
+        isLanded = true;
+        isActive = false;
+        return;
+    }
+
+    for (int i = 0; i < platformCount; i++) {
+        if (CheckCollision(&platforms[i])) {
+            isActive = false;
+            return;
+        }
+    }
 
     modelMatrix = glm::mat4(1.0f);
     modelMatrix = glm::translate(modelMatrix, position);
