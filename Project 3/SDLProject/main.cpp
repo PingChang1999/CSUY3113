@@ -289,15 +289,16 @@ void Update() {
 
 void Render() {
     glClear(GL_COLOR_BUFFER_BIT);
-    
+
     if (state.player->isActive == false) {
         if (state.player->isLanded == false) {
-            DrawText(&program, font, "Mission Failed", 0.5f, -0.25f, glm::vec3(-2.0f, 1.0f, 0.0f));
+            return DrawText(&program, font, "Mission Failed", 0.5f, -0.25f, glm::vec3(-2.0f, 1.0f, 0.0f));
         }
         else {
-            DrawText(&program, font, "Mission Successful", 0.5f, -0.25f, glm::vec3(-2.0f, 1.0f, 0.0f));
+            return DrawText(&program, font, "Mission Successful", 0.5f, -0.25f, glm::vec3(-2.0f, 1.0f, 0.0f));
         }
     }
+
 
     for (int i = 0; i < PLATFORM_COUNT; i++) {
         state.platforms[i].Render(&program);
