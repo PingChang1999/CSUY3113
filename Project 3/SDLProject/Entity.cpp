@@ -49,7 +49,6 @@ void Entity::CheckCollisionsY(Entity* objects, int objectCount)
     }
 }
 
-/*
 void Entity::CheckCollisionsX(Entity* objects, int objectCount)
 {
     for (int i = 0; i < objectCount; i++)
@@ -71,13 +70,11 @@ void Entity::CheckCollisionsX(Entity* objects, int objectCount)
         }
     }
 }
-*/
 
 void Entity::Update(float deltaTime, Entity* platforms, Entity* goal, int platformCount)
 {
     if (isActive == false) return;
 
-    //velocity.x = movement.x * speed;
     velocity += acceleration * deltaTime; //keep adding to velocity with the acceleration
 
     position += velocity * deltaTime;

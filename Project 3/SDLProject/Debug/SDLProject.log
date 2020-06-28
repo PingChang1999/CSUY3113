@@ -1,4 +1,2 @@
-﻿  main.cpp
-C:\Users\User\Documents\CSUY3113\Project 3\SDLProject\main.cpp(83,23): warning C4018: '<': signed/unsigned mismatch
-C:\Users\User\Documents\CSUY3113\Project 3\SDLProject\main.cpp(386,19): warning C4101: 'event': unreferenced local variable
+﻿  Entity.cpp
   SDLProject.vcxproj -> C:\Users\User\Documents\CSUY3113\Project 3\SDLProject\Debug\SDLProject.exe

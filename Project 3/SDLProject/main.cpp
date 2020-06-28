@@ -342,14 +342,12 @@ void ProcessInput() {
 
 }
 
-//#define FIXED_TIMESTEP 0.0166666f
-
 void Update() {
     float ticks = (float)SDL_GetTicks() / 1000.0f;
     float deltaTime = ticks - lastTicks;
     lastTicks = ticks;
     
-    state.player->Update(deltaTime, state.platforms, state.goal, PLATFORM_COUNT); //FIXED_TIMESTEP
+    state.player->Update(deltaTime, state.platforms, state.goal, PLATFORM_COUNT);
 }
 
 
