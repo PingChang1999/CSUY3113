@@ -6,7 +6,11 @@ Entity::Entity()
     movement = glm::vec3(0);
     acceleration = glm::vec3(0);
     velocity = glm::vec3(0);
+    
     speed = 0;
+
+    animCols = 1;
+    animRows = 1;
 
     modelMatrix = glm::mat4(1.0f);
 }
@@ -32,20 +36,20 @@ void Entity::CheckCollisionsY(Entity* objects, int objectCount)
         {
             float ydist = fabs(position.y - object->position.y);
             float penetrationY = fabs(ydist - (height / 2.0f) - (object->height / 2.0f));
+            
             if (velocity.y > 0) { //going up
                 position.y -= penetrationY;
                 velocity.y = 0;
-                collidedTop = true;
             }
             else if (velocity.y < 0) {
                 position.y += penetrationY;
                 velocity.y = 0;
-                collidedBottom = true;
             }
         }
     }
 }
 
+/*
 void Entity::CheckCollisionsX(Entity* objects, int objectCount)
 {
     for (int i = 0; i < objectCount; i++)
@@ -59,131 +63,52 @@ void Entity::CheckCollisionsX(Entity* objects, int objectCount)
             if (velocity.x > 0) { //moving to the right
                 position.x -= penetrationX;
                 velocity.x = 0;
-                collidedRight = true;
             }
             else if (velocity.x < 0) {
                 position.x += penetrationX;
                 velocity.x = 0;
-                collidedLeft = true;
             }
         }
     }
 }
+*/
 
-void Entity::DrawText(ShaderProgram* program, GLuint fontTextureID, std::string text,
-    float size, float spacing, glm::vec3 position)
-{
-    float width = 1.0f / 16.0f;
-    float height = 1.0f / 16.0f;
-
-    std::vector<float> vertices;
-    std::vector<float> texCoords;
-
-    for (int i = 0; i < text.size(); i++) {
-
-        int index = (int)text[i];
-        float offset = (size + spacing) * i;
-        float u = (float)(index % 16) / 16.0f;
-        float v = (float)(index / 16) / 16.0f;
-        vertices.insert(vertices.end(), {
-            offset + (-0.5f * size), 0.5f * size,
-            offset + (-0.5f * size), -0.5f * size,
-            offset + (0.5f * size), 0.5f * size,
-            offset + (0.5f * size), -0.5f * size,
-            offset + (0.5f * size), 0.5f * size,
-            offset + (-0.5f * size), -0.5f * size,
-            });
-
-        texCoords.insert(texCoords.end(), {
-            u, v,
-            u, v + height,
-            u + width, v,
-            u + width, v + height,
-            u + width, v,
-            u, v + height,
-            });
-
-    } // end of for loop
-
-    glm::mat4 modelMatrix = glm::mat4(1.0f);
-    modelMatrix = glm::translate(modelMatrix, position);
-    program->SetModelMatrix(modelMatrix);
-
-    glUseProgram(program->programID);
-
-    glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, vertices.data());
-    glEnableVertexAttribArray(program->positionAttribute);
-
-    glVertexAttribPointer(program->texCoordAttribute, 2, GL_FLOAT, false, 0, texCoords.data());
-    glEnableVertexAttribArray(program->texCoordAttribute);
-
-    glBindTexture(GL_TEXTURE_2D, fontTextureID);
-    glDrawArrays(GL_TRIANGLES, 0, (int)(text.size() * 6));
-
-    glDisableVertexAttribArray(program->positionAttribute);
-    glDisableVertexAttribArray(program->texCoordAttribute);
-}
-
-void Entity::Update(float deltaTime, Entity* platforms, int platformCount)
+void Entity::Update(float deltaTime, Entity* platforms, Entity* goal, int platformCount)
 {
     if (isActive == false) return;
 
-    collidedTop = false;
-    collidedBottom = false;
-    collidedLeft = false;
-    collidedRight = false;
-
-    if (animIndices != NULL) {
-        if (glm::length(movement) != 0) {
-            animTime += deltaTime;
-
-            if (animTime >= 0.25f)
-            {
-                animTime = 0.0f;
-                animIndex++;
-                if (animIndex >= animFrames)
-                {
-                    animIndex = 0;
-                }
-            }
-        }
-        else {
-            animIndex = 0;
-        }
-    }
-
-    if (jump) {
-        jump = false;
-        velocity.y += jumpPower;
-    }
-
-    velocity.x = movement.x * speed;
+    //velocity.x = movement.x * speed;
     velocity += acceleration * deltaTime; //keep adding to velocity with the acceleration
 
+    position += velocity * deltaTime;
+    
+    /*
     position.y += velocity.y * deltaTime; // Move on Y
     CheckCollisionsY(platforms, platformCount); // Fix if needed
 
     position.x += velocity.x * deltaTime; // Move on X
     CheckCollisionsX(platforms, platformCount); // Fix if needed
+    */
+    
 
-    //if collided with something, what was it, do what?
-    if (CheckCollision(&platforms[28])) {
-        isLanded = true;
-        isActive = false;
-        return;
-    }
+    modelMatrix = glm::mat4(1.0f);
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(position.x, position.y, 0.0f));
 
-    for (int i = 0; i < platformCount; i++) {
-        if (CheckCollision(&platforms[i])) {
+    if (platformCount != 0) {
+        if (CheckCollision(goal)) {
+            isLanded = true;
             isActive = false;
             return;
         }
+
+        for (int i = 0; i < platformCount; i++) {
+            if (CheckCollision(&platforms[i])) {
+                isActive = false;
+                return;
+            }
+        }
     }
-
-    modelMatrix = glm::mat4(1.0f);
-    modelMatrix = glm::translate(modelMatrix, position);
 }
-
 
 void Entity::DrawSpriteFromTextureAtlas(ShaderProgram* program, GLuint textureID, int index)
 {
@@ -212,8 +137,8 @@ void Entity::DrawSpriteFromTextureAtlas(ShaderProgram* program, GLuint textureID
     glDisableVertexAttribArray(program->texCoordAttribute);
 }
 
-void Entity::Render(ShaderProgram* program) {
-
+void Entity::Render(ShaderProgram* program)
+{
     if (isActive == false) return;
 
     program->SetModelMatrix(modelMatrix);
@@ -226,14 +151,13 @@ void Entity::Render(ShaderProgram* program) {
     float vertices[] = { -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5 };
     float texCoords[] = { 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0 };
 
-    glBindTexture(GL_TEXTURE_2D, textureID);
-
     glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, vertices);
     glEnableVertexAttribArray(program->positionAttribute);
 
     glVertexAttribPointer(program->texCoordAttribute, 2, GL_FLOAT, false, 0, texCoords);
     glEnableVertexAttribArray(program->texCoordAttribute);
 
+    glBindTexture(GL_TEXTURE_2D, textureID);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     glDisableVertexAttribArray(program->positionAttribute);

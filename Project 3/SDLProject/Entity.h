@@ -19,37 +19,23 @@ public:
     glm::vec3 acceleration;
     glm::vec3 velocity;
 
-    float width = 1;
-    float height = 1;
-
-    bool jump = false;
-    float jumpPower = 0;
-
     float speed;
-
-    GLuint textureID;
-
-    glm::mat4 modelMatrix;
-
-    int* animRight = NULL;
-    int* animLeft = NULL;
-    int* animUp = NULL;
-    int* animDown = NULL;
 
     int* animIndices = NULL;
     int animFrames = 0;
     int animIndex = 0;
-    float animTime = 0;
     int animCols = 0;
     int animRows = 0;
+
+    float width = 1;
+    float height = 1;
 
     bool isActive = true;
     bool isLanded = false;
 
-    bool collidedTop = false;
-    bool collidedBottom = false;
-    bool collidedLeft = false;
-    bool collidedRight = false;
+    GLuint textureID;
+
+    glm::mat4 modelMatrix;
 
     Entity();
 
@@ -57,9 +43,7 @@ public:
     void CheckCollisionsY(Entity* objects, int objectCount);
     void CheckCollisionsX(Entity* objects, int objectCount);
 
-    void Update(float deltaTime, Entity* platforms, int platformCount);
+    void Update(float deltaTime, Entity* platforms, Entity* goal, int platformCount);
     void Render(ShaderProgram* program);
-    void DrawText(ShaderProgram* program, GLuint fontTextureID, std::string text,
-        float size, float spacing, glm::vec3 position);
     void DrawSpriteFromTextureAtlas(ShaderProgram* program, GLuint textureID, int index);
 };
