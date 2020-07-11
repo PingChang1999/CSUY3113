@@ -75,7 +75,11 @@ void Entity::CheckCollisionsX(Entity* objects, int objectCount)
 
 void Entity::AIWalker()
 {
-    movement = glm::vec3(-1, 1, 0);
+    //movement = glm::vec3(-1, 1, 0);
+    if (collidedBottom) {
+        velocity.y += 5.0;
+        collidedBottom = false;
+    }
 }
 
 
@@ -137,10 +141,12 @@ void Entity::Update(float deltaTime, Entity* player, Entity* platforms, int plat
 {
     if (isActive == false) return;
 
+    /*
     collidedTop = false;
     collidedBottom = false;
     collidedLeft = false;
     collidedRight = false;
+    */
 
     if (entityType == ENEMY) {
         AI(player); //process input for an enemy

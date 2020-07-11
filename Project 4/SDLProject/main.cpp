@@ -234,10 +234,14 @@ void Update() {
         return;
     }
 
-    while (deltaTime >= FIXED_TIMESTEP) {
+    while (deltaTime >= FIXED_TIMESTEP && state.player->isActive) {
         // Update. Notice it's FIXED_TIMESTEP. Not deltaTime
         state.player->Update(FIXED_TIMESTEP, state.player, state.platforms, PLATFORM_COUNT);
 
+        if (state.player->collidedLeft || state.player->collidedRight) {
+            state.player->isActive = false;
+            //state.player->isWin = false;
+        }
         for (int i = 0; i < ENEMY_COUNT; i++) {
             state.enemies[i].Update(FIXED_TIMESTEP, state.player, state.platforms, PLATFORM_COUNT);
         }
