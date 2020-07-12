@@ -11,10 +11,10 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "ShaderProgram.h"
 
-enum EntityType { PLAYER, PLATFORM, ENEMY };
+enum EntityType { PLAYER, PLATFORM, ENEMY, OBJECT };
 
-enum AIType { WALKER, WAITANDGO, JUMPER };
-enum AIState { IDLE, WALKING, ATTACKING };
+enum AIType { WALKER, JUMPER, THROWER };
+enum AIState { IDLE, WALKING, JUMPING, THROWING };
 
 class Entity {
 public:
@@ -52,12 +52,18 @@ public:
     int animCols = 0;
     int animRows = 0;
 
+    int enemiesKilled = 0;
+
     bool isActive = true;
+    bool isWin = false;
 
     bool collidedTop = false;
     bool collidedBottom = false;
     bool collidedLeft = false;
     bool collidedRight = false;
+
+    bool shootFlame = false;
+    bool shootFire = false;
 
     Entity();
 
@@ -65,12 +71,12 @@ public:
     void CheckCollisionsY(Entity* objects, int objectCount);
     void CheckCollisionsX(Entity* objects, int objectCount);
 
-    void Update(float deltaTime, Entity* player, Entity* platforms, int platformCount);
+    void Update(float deltaTime, Entity* player, Entity* enemyTarget, Entity* attackObject, Entity* platforms, int platformCount);
     void Render(ShaderProgram* program);
     void DrawSpriteFromTextureAtlas(ShaderProgram* program, GLuint textureID, int index);
 
-    void AI(Entity* player);
-    void AIWalker();
-    void AIWaitAndGo(Entity* player);
-    void AIJumper();
+    void AI(Entity* player, Entity* attackObject);
+    void AIWaitAndGo(Entity* player, Entity* attackObject = nullptr);
+
+    void Projectile(Entity* target, Entity* player, float deltaTime);
 };

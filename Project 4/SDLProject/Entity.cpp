@@ -1,15 +1,16 @@
 #include "Entity.h"
 
-bool horizontal = 0;
-bool vertical = 0;
-
 Entity::Entity()
 {
     position = glm::vec3(0);
     movement = glm::vec3(0);
-    acceleration = glm::vec3(0);
     velocity = glm::vec3(0);
+    acceleration = glm::vec3(0);
+
     speed = 0;
+
+    animCols = 1;
+    animRows = 1;
 
     modelMatrix = glm::mat4(1.0f);
 }
@@ -18,7 +19,7 @@ bool Entity::CheckCollision(Entity* other) {
     if (isActive == false || other->isActive == false) return false;
 
     float xdist = fabs(position.x - other->position.x) - ((width + other->width) / 2.0f);
-    float ydist = fabs(position.y - other->position.y) - ((width + other->width) / 2.0f);
+    float ydist = fabs(position.y - other->position.y) - ((height + other->height) / 2.0f);
 
     if (xdist < 0 && ydist < 0) return true;
 
@@ -35,6 +36,7 @@ void Entity::CheckCollisionsY(Entity* objects, int objectCount)
         {
             float ydist = fabs(position.y - object->position.y);
             float penetrationY = fabs(ydist - (height / 2.0f) - (object->height / 2.0f));
+            
             if (velocity.y > 0) { //going up
                 position.y -= penetrationY;
                 velocity.y = 0;
@@ -55,45 +57,55 @@ void Entity::CheckCollisionsX(Entity* objects, int objectCount)
     {
         Entity* object = &objects[i];
 
-        if (CheckCollision(object))
+        if (CheckCollision(object) && isActive && object->isActive)
         {
             float xdist = fabs(position.x - object->position.x);
             float penetrationX = fabs(xdist - (width / 2.0f) - (object->width / 2.0f));
+            
             if (velocity.x > 0) { //moving to the right
                 position.x -= penetrationX;
                 velocity.x = 0;
                 collidedRight = true;
+                object->collidedRight = true;
             }
             else if (velocity.x < 0) {
                 position.x += penetrationX;
                 velocity.x = 0;
                 collidedLeft = true;
+                object->collidedLeft = true;
             }
         }
     }
 }
 
-void Entity::AIWalker()
-{
-    //movement = glm::vec3(-1, 1, 0);
-    if (collidedBottom) {
-        velocity.y += 5.0;
-        collidedBottom = false;
-    }
-}
-
-
-void Entity::AIWaitAndGo(Entity* player)
+void Entity::AIWaitAndGo(Entity* player, Entity* attackObject)
 {
     switch (aiState)
     {
     case IDLE:
         if (glm::distance(position, player->position) < 3.0f) {
-            aiState = WALKING;
+            switch (aiType) {
+                case WALKER:
+                    aiState = WALKING;
+                    break;
+                case JUMPER:
+                    aiState = JUMPING;
+                    break;
+                case THROWER:
+                    aiState = THROWING;
+                    break;
+            }
         }
         break;
 
     case WALKING:
+        if (player->position.x < position.x) {
+            movement = glm::vec3(-1, 0, 0);
+        }
+        else {
+            movement = glm::vec3(1, 0, 0);
+        }
+        /*
         if (horizontal == 0) {
             movement = glm::vec3(1, 0, 0);
             if (position.x > 4.0) {
@@ -106,52 +118,100 @@ void Entity::AIWaitAndGo(Entity* player)
                 horizontal = 0;
             }
         }
+        */
         break;
 
-    case ATTACKING:
+    case JUMPING:
+        if (player->position.x < position.x) {
+            movement = glm::vec3(-1, 0, 0);
+        }
+        else {
+            movement = glm::vec3(1, 0, 0);
+        }
+        if (collidedBottom) {
+            velocity.y += 5.0f;
+            collidedBottom = false;
+        }
+        break;
+
+    case THROWING:
+        if (glm::distance(position, player->position) < 3) {
+            movement = glm::vec3(0);
+            if (!shootFire) {
+                shootFire = true;
+                attackObject->isActive = true;
+                attackObject->position = position;
+                attackObject->position.x = position.x - width;
+            }
+        }
+        else {
+            if (player->position.x < position.x) {
+                movement = glm::vec3(-1, 0, 0);
+            }
+            else {
+                movement = glm::vec3(1, 0, 0);
+            }
+        }
         break;
     }
 }
 
-void Entity::AIJumper() {
-    if (collidedBottom) {
-        velocity.y += 5.0f;
-        jump = true;
-        collidedBottom = false;
-        }
-}
+void Entity::AI(Entity* player, Entity* attackObject) {
+    CheckCollisionsX(player, 1);
+    CheckCollisionsY(player, 1);
 
-void Entity::AI(Entity* player) {
     switch (aiType) {
     case WALKER:
-        AIWalker();
+        AIWaitAndGo(player);
         break;
 
-    case WAITANDGO:
+    case JUMPER:
         AIWaitAndGo(player);
         break;
     
-    case JUMPER:
-        AIJumper();
+    case THROWER:
+        AIWaitAndGo(player, attackObject);
+        break;
+
+    default:
         break;
     }
 }
 
-void Entity::Update(float deltaTime, Entity* player, Entity* platforms, int platformCount)
+void Entity::Projectile(Entity* target, Entity* player, float deltaTime) {
+    collidedRight = false;
+    collidedLeft = false;
+    
+    velocity.x = movement.x * speed;
+    velocity += acceleration * deltaTime;
+
+    position.x += velocity.x * deltaTime;
+    CheckCollisionsX(target, 1);
+
+    modelMatrix = glm::mat4(1.0f);
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(position.x, position.y, 0.0f));
+
+    if (collidedRight || collidedLeft) {
+        isActive = false;
+        target->isActive = false;
+
+        player->enemiesKilled++;
+        player->position.x = -4.0;
+    }
+}
+
+void Entity::Update(float deltaTime, Entity* player, Entity* enemyTarget, Entity* attackObject, Entity* platforms, int platformCount)
 {
     if (isActive == false) return;
 
-    /*
-    collidedTop = false;
-    collidedBottom = false;
-    collidedLeft = false;
-    collidedRight = false;
-    */
-
     if (entityType == ENEMY) {
-        AI(player); //process input for an enemy
+        AI(player, attackObject); //process input for an enemy
+    }
+    else if (entityType == OBJECT) {
+        Projectile(enemyTarget, player, deltaTime);
     }
 
+    /*
     if (animIndices != NULL) {
         if (glm::length(movement) != 0) {
             animTime += deltaTime;
@@ -170,6 +230,7 @@ void Entity::Update(float deltaTime, Entity* player, Entity* platforms, int plat
             animIndex = 0;
         }
     }
+    */
 
     if (jump) {
         jump = false;
@@ -188,7 +249,7 @@ void Entity::Update(float deltaTime, Entity* player, Entity* platforms, int plat
     //if collided with something, what was it, do what?
 
     modelMatrix = glm::mat4(1.0f);
-    modelMatrix = glm::translate(modelMatrix, position);
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(position.x, position.y, 0.0f));
 }
 
 void Entity::DrawSpriteFromTextureAtlas(ShaderProgram* program, GLuint textureID, int index)
@@ -232,14 +293,13 @@ void Entity::Render(ShaderProgram* program) {
     float vertices[] = { -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5 };
     float texCoords[] = { 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0 };
 
-    glBindTexture(GL_TEXTURE_2D, textureID);
-
     glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, vertices);
     glEnableVertexAttribArray(program->positionAttribute);
 
     glVertexAttribPointer(program->texCoordAttribute, 2, GL_FLOAT, false, 0, texCoords);
     glEnableVertexAttribArray(program->texCoordAttribute);
 
+    glBindTexture(GL_TEXTURE_2D, textureID);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     glDisableVertexAttribArray(program->positionAttribute);

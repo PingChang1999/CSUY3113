@@ -17,25 +17,30 @@
 
 #include "Entity.h"
 
-#define PLATFORM_COUNT 15
+#define PLATFORM_COUNT 11
 #define ENEMY_COUNT 3
 
 struct GameState {
     Entity* player;
-    Entity* fire;
+    Entity* flame; //player projectile
+    Entity* fire; // enemy projectile
     Entity* platforms;
     Entity* enemies;
 };
 
 GameState state;
 
+ShaderProgram program;
+glm::mat4 viewMatrix, modelMatrix, projectionMatrix, terrainMatrix, leftMatrix;
+
 GLuint font;
 
 SDL_Window* displayWindow;
 bool gameIsRunning = true;
 
-ShaderProgram program;
-glm::mat4 viewMatrix, modelMatrix, projectionMatrix;
+int* animIndices = new int[4]{ 3, 7, 11, 15 };
+int animFrames = 4;
+int animIndex = 0;
 
 void DrawSpriteFromTextureAtlas(ShaderProgram* program, GLuint textureID, int index)
 {
@@ -152,6 +157,9 @@ GLuint LoadTexture(const char* filePath) {
     glBindTexture(GL_TEXTURE_2D, textureID);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -176,6 +184,8 @@ void Initialize() {
 
     viewMatrix = glm::mat4(1.0f);
     modelMatrix = glm::mat4(1.0f);
+    terrainMatrix = glm::mat4(1.0f);
+    leftMatrix = glm::mat4(1.0f);
     projectionMatrix = glm::ortho(-5.0f, 5.0f, -3.75f, 3.75f, -1.0f, 1.0f);
 
     program.SetProjectionMatrix(projectionMatrix);
@@ -198,9 +208,12 @@ void Initialize() {
     state.player->position = glm::vec3(-4, -1, 0);
     state.player->movement = glm::vec3(0);
     state.player->acceleration = glm::vec3(0, -9.81f, 0);
+    state.player->velocity = glm::vec3(0);
     state.player->speed = 1.5f;
-    state.player->textureID = LoadTexture("george_0.png");
+    state.player->jumpPower = 0.5f;
+    state.player->textureID = LoadTexture("HK_Knight.png");
 
+    /*
     state.player->animRight = new int[4]{ 3, 7, 11, 15 };
     state.player->animLeft = new int[4]{ 1, 5, 9, 13 };
     state.player->animUp = new int[4]{ 2, 6, 10, 14 };
@@ -215,20 +228,30 @@ void Initialize() {
 
     state.player->height = 0.8f;
     state.player->width = 0.8f;
+    */
 
-    state.player->jumpPower = 6.5f;
+    state.flame = new Entity();
+    state.flame->isActive = false;
+    state.flame->entityType = OBJECT;
+    state.flame->position = state.player->position;
+    state.flame->movement = glm::vec3(1, 0, 0);
+    state.flame->velocity = glm::vec3(1, 0, 0);
+    state.flame->speed = 2.0f;
+    state.flame->textureID = LoadTexture("flame.png");
+
 
 
     state.platforms = new Entity[PLATFORM_COUNT];
 
     GLuint platformTextureID = LoadTexture("platformPack_tile001.png");
 
-    for (int i = 0; i < PLATFORM_COUNT - 3; i++) {
+    for (int i = 0; i < PLATFORM_COUNT; i++) {
         state.platforms[i].entityType = PLATFORM;
         state.platforms[i].textureID = platformTextureID;
         state.platforms[i].position = glm::vec3(-5 + i, -3.25f, 0);
     }
 
+    /*
     for (int i = 11; i < PLATFORM_COUNT - 1; i++) {
         state.platforms[i].entityType = PLATFORM;
         state.platforms[i].textureID = platformTextureID;
@@ -240,9 +263,9 @@ void Initialize() {
         state.platforms[i].textureID = platformTextureID;
         state.platforms[i].position = glm::vec3(i - 14, -1.25f, 0);
     }
-
+    */
     for (int i = 0; i < PLATFORM_COUNT; i++) { //update platform 1 time so modelMatrix would update
-        state.platforms[i].Update(0, NULL, NULL, 0);
+        state.platforms[i].Update(0, state.player, &state.enemies[state.player->enemiesKilled], state.fire, state.platforms, 0);
     }
 
     state.enemies = new Entity[ENEMY_COUNT];
@@ -261,51 +284,30 @@ void Initialize() {
     state.enemies[1].position = glm::vec3(3, -0.25, 0);
     state.enemies[1].speed = 1;
     state.enemies[1].acceleration = glm::vec3(0.0, -9.81f, 0.0);
-    state.enemies[1].aiType = WAITANDGO;
+    state.enemies[1].aiType = JUMPER; //WAITANDGO
     state.enemies[1].aiState = IDLE;
+    state.enemies[1].isActive = false;
 
     state.enemies[2].entityType = ENEMY;
     state.enemies[2].textureID = enemyTextureID;
     state.enemies[2].position = glm::vec3(2, 2.25, 0);
     state.enemies[2].speed = 1;
     state.enemies[2].acceleration = glm::vec3(0.0, -9.81f, 0.0);
-    state.enemies[2].aiType = JUMPER;
+    state.enemies[2].aiType = THROWER;
     state.enemies[2].aiState = IDLE;
+    state.enemies[2].isActive = false;
 
-
+    state.fire = new Entity();
+    state.fire->isActive = false;
+    state.fire->entityType = OBJECT;
+    state.fire->position = state.enemies[2].position;
+    state.fire->movement = glm::vec3(1, 0, 0);
+    state.fire->velocity = glm::vec3(1, 0, 0);
+    state.fire->speed = -2.0f;
+    state.fire->textureID = LoadTexture("fireball.png");
 }
 
 void ProcessInput() {
-
-    state.player->movement = glm::vec3(0);
-
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        switch (event.type) {
-        case SDL_QUIT:
-        case SDL_WINDOWEVENT_CLOSE:
-            gameIsRunning = false;
-            break;
-
-        case SDL_KEYDOWN:
-            switch (event.key.keysym.sym) {
-            case SDLK_LEFT:
-                // Move the player left
-                break;
-
-            case SDLK_RIGHT:
-                // Move the player right
-                break;
-
-            case SDLK_SPACE:
-                if (state.player->collidedBottom) {
-                    state.player->jump = true;
-                }
-                break;
-            }
-            break; // SDL_KEYDOWN
-        }
-    }
 
     const Uint8* keys = SDL_GetKeyboardState(NULL);
 
@@ -317,12 +319,17 @@ void ProcessInput() {
         state.player->movement.x = 1.0f;
         state.player->animIndices = state.player->animRight;
     }
-
-
-    if (glm::length(state.player->movement) > 1.0f) {
-        state.player->movement = glm::normalize(state.player->movement);
+    if (keys[SDL_SCANCODE_SPACE]) {
+        if (!state.player->jump) state.player->jump = true;
     }
-
+    if (keys[SDL_SCANCODE_X]) {
+        if (!state.player->shootFlame) {
+            state.player->shootFlame = true;
+            state.flame->position = state.player->position;
+            state.flame->position.x = state.player->position.x + state.player->width;
+            state.flame->isActive = true;
+        }
+    }
 }
 
 #define FIXED_TIMESTEP 0.0166666f
@@ -342,14 +349,37 @@ void Update() {
 
     while (deltaTime >= FIXED_TIMESTEP && state.player->isActive) {
         // Update. Notice it's FIXED_TIMESTEP. Not deltaTime
-        state.player->Update(FIXED_TIMESTEP, state.player, state.platforms, PLATFORM_COUNT);
+        state.player->Update(FIXED_TIMESTEP, state.player, &state.enemies[state.player->enemiesKilled], state.fire, state.platforms, PLATFORM_COUNT);
 
         if (state.player->collidedLeft || state.player->collidedRight) {
             state.player->isActive = false;
-            //state.player->isWin = false;
+            state.player->isWin = false;
         }
         for (int i = 0; i < ENEMY_COUNT; i++) {
-            state.enemies[i].Update(FIXED_TIMESTEP, state.player, state.platforms, PLATFORM_COUNT);
+            if (state.enemies[i].isActive) {
+                state.enemies[i].Update(FIXED_TIMESTEP, state.player, &state.enemies[i], state.fire, state.platforms, PLATFORM_COUNT);
+            }
+            if (state.enemies[i].shootFire) {
+                state.fire->Update(FIXED_TIMESTEP, state.player, &state.enemies[i], state.fire, state.platforms, PLATFORM_COUNT);
+                if (glm::distance(state.fire->position, state.player->position) > 4.0) {
+                    state.fire->isActive = false;
+                    state.enemies[i].shootFire = false;
+                }
+                if (!state.fire->isActive && !state.player->isActive) {
+                    state.enemies[i].shootFire = false;
+                }
+            }
+            if (state.flame->isActive) {
+                state.flame->Update(FIXED_TIMESTEP, state.player, &state.enemies[i], state.fire, state.platforms, PLATFORM_COUNT);
+                if (glm::distance(state.flame->position, state.player->position) > 4.0) {
+                    state.flame->isActive = false;
+                    state.player->shootFlame = false;
+                }
+                if (!state.flame->isActive && !state.enemies[i].isActive) {
+                    state.player->shootFlame = false;
+                }
+            }
+            state.enemies[state.player->enemiesKilled].isActive = true;
         }
 
         deltaTime -= FIXED_TIMESTEP;
@@ -365,9 +395,9 @@ void Render() {
     if (!state.player->isActive) {
         DrawText(&program, font, "Game Over", 0.5f, -0.25f, glm::vec3(-2.0f, 1.0f, 0.0f));
     }
-    //else if (state.player->enemiesKilled == ENEMY_COUNT) {
-        //DrawText(&program, font, "You Win", 0.5f, -0.25f, glm::vec3(-2.0f, 1.0f, 0.0f));
-    //}
+    else if (state.player->enemiesKilled == ENEMY_COUNT) {
+        DrawText(&program, font, "You Win", 0.5f, -0.25f, glm::vec3(-2.0f, 1.0f, 0.0f));
+    }
     else {
         DrawText(&program, font, "Press Space to Jump", 0.5f, -0.25f, glm::vec3(-3.0f, 3.0f, 0.0f));
         DrawText(&program, font, "Press 'X' to fire", 0.5f, -0.25f, glm::vec3(-3.0f, 2.0f, 0.0f));
@@ -382,9 +412,13 @@ void Render() {
 
     state.player->Render(&program);
 
-    //if (state.fire->isActive) {
-        //state.fire->Render(&program);
-    //}
+    if (state.flame->isActive) {
+        state.flame->Render(&program);
+    }
+
+    if (state.fire->isActive) {
+        state.fire->Render(&program);
+    }
 
     SDL_GL_SwapWindow(displayWindow);
 }
@@ -398,6 +432,13 @@ int main(int argc, char* argv[]) {
     Initialize();
 
     while (gameIsRunning) {
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
+                gameIsRunning = false;
+            }
+        }
+
         ProcessInput();
         Update();
         Render();
