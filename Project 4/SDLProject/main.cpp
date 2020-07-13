@@ -22,7 +22,7 @@
 
 struct GameState {
     Entity* player;
-    Entity* flame; //player projectile
+    Entity* flame;
     Entity* platforms;
     Entity* enemies;
 };
@@ -30,16 +30,12 @@ struct GameState {
 GameState state;
 
 ShaderProgram program;
-glm::mat4 viewMatrix, modelMatrix, projectionMatrix, terrainMatrix, leftMatrix;
+glm::mat4 viewMatrix, modelMatrix, projectionMatrix;
 
 GLuint font;
 
 SDL_Window* displayWindow;
 bool gameIsRunning = true;
-
-int* animIndices = new int[4]{ 3, 7, 11, 15 };
-int animFrames = 4;
-int animIndex = 0;
 
 void DrawSpriteFromTextureAtlas(ShaderProgram* program, GLuint textureID, int index)
 {
@@ -183,8 +179,6 @@ void Initialize() {
 
     viewMatrix = glm::mat4(1.0f);
     modelMatrix = glm::mat4(1.0f);
-    terrainMatrix = glm::mat4(1.0f);
-    leftMatrix = glm::mat4(1.0f);
     projectionMatrix = glm::ortho(-5.0f, 5.0f, -3.75f, 3.75f, -1.0f, 1.0f);
 
     program.SetProjectionMatrix(projectionMatrix);
@@ -309,7 +303,6 @@ void Update() {
 
         if (state.player->collidedLeft || state.player->collidedRight) {
             state.player->isActive = false;
-            state.player->isWin = false;
         }
         for (int i = 0; i < ENEMY_COUNT; i++) {
             if (state.enemies[i].isActive) {

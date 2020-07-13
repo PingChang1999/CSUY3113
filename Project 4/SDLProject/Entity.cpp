@@ -178,7 +178,6 @@ void Entity::Projectile(Entity* target, Entity* player, float deltaTime) {
         target->isActive = false;
 
         player->enemiesKilled++;
-        player->position.x = -4.0;
     }
 }
 

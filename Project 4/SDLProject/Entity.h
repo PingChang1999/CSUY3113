@@ -55,7 +55,6 @@ public:
     int enemiesKilled = 0;
 
     bool isActive = true;
-    bool isWin = false;
 
     bool collidedTop = false;
     bool collidedBottom = false;
