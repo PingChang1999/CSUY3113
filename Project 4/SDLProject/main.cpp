@@ -23,7 +23,6 @@
 struct GameState {
     Entity* player;
     Entity* flame; //player projectile
-    Entity* fire; // enemy projectile
     Entity* platforms;
     Entity* enemies;
 };
@@ -211,24 +210,7 @@ void Initialize() {
     state.player->velocity = glm::vec3(0);
     state.player->speed = 1.5f;
     state.player->jumpPower = 0.5f;
-    state.player->textureID = LoadTexture("HK_Knight.png");
-
-    /*
-    state.player->animRight = new int[4]{ 3, 7, 11, 15 };
-    state.player->animLeft = new int[4]{ 1, 5, 9, 13 };
-    state.player->animUp = new int[4]{ 2, 6, 10, 14 };
-    state.player->animDown = new int[4]{ 0, 4, 8, 12 };
-
-    state.player->animIndices = state.player->animRight;
-    state.player->animFrames = 4;
-    state.player->animIndex = 0;
-    state.player->animTime = 0;
-    state.player->animCols = 4;
-    state.player->animRows = 4;
-
-    state.player->height = 0.8f;
-    state.player->width = 0.8f;
-    */
+    state.player->textureID = LoadTexture("ctg_h.png");
 
     state.flame = new Entity();
     state.flame->isActive = false;
@@ -238,8 +220,6 @@ void Initialize() {
     state.flame->velocity = glm::vec3(1, 0, 0);
     state.flame->speed = 2.0f;
     state.flame->textureID = LoadTexture("flame.png");
-
-
 
     state.platforms = new Entity[PLATFORM_COUNT];
 
@@ -251,21 +231,8 @@ void Initialize() {
         state.platforms[i].position = glm::vec3(-5 + i, -3.25f, 0);
     }
 
-    /*
-    for (int i = 11; i < PLATFORM_COUNT - 1; i++) {
-        state.platforms[i].entityType = PLATFORM;
-        state.platforms[i].textureID = platformTextureID;
-        state.platforms[i].position = glm::vec3(i - 9, -1.25f, 0);
-    }
-
-    for (int i = 14; i < PLATFORM_COUNT; i++) {
-        state.platforms[i].entityType = PLATFORM;
-        state.platforms[i].textureID = platformTextureID;
-        state.platforms[i].position = glm::vec3(i - 14, -1.25f, 0);
-    }
-    */
     for (int i = 0; i < PLATFORM_COUNT; i++) { //update platform 1 time so modelMatrix would update
-        state.platforms[i].Update(0, state.player, &state.enemies[state.player->enemiesKilled], state.fire, state.platforms, 0);
+        state.platforms[i].Update(0, state.player, &state.enemies[state.player->enemiesKilled], state.platforms, 0);
     }
 
     state.enemies = new Entity[ENEMY_COUNT];
@@ -274,37 +241,26 @@ void Initialize() {
     state.enemies[0].entityType = ENEMY;
     state.enemies[0].textureID = enemyTextureID;
     state.enemies[0].position = glm::vec3(4, -2.25, 0);
-    state.enemies[0].speed = 1;
+    state.enemies[0].speed = 2;
     state.enemies[0].acceleration = glm::vec3(0.0, -9.81f, 0.0);
-    state.enemies[0].aiType = WALKER;
+    state.enemies[0].aiType = FLYER;
     state.enemies[0].aiState = IDLE;
 
     state.enemies[1].entityType = ENEMY;
     state.enemies[1].textureID = enemyTextureID;
     state.enemies[1].position = glm::vec3(3, -0.25, 0);
-    state.enemies[1].speed = 1;
+    state.enemies[1].speed = 2;
     state.enemies[1].acceleration = glm::vec3(0.0, -9.81f, 0.0);
     state.enemies[1].aiType = JUMPER; //WAITANDGO
     state.enemies[1].aiState = IDLE;
-    state.enemies[1].isActive = false;
 
     state.enemies[2].entityType = ENEMY;
     state.enemies[2].textureID = enemyTextureID;
     state.enemies[2].position = glm::vec3(2, 2.25, 0);
-    state.enemies[2].speed = 1;
+    state.enemies[2].speed = 3;
     state.enemies[2].acceleration = glm::vec3(0.0, -9.81f, 0.0);
-    state.enemies[2].aiType = THROWER;
+    state.enemies[2].aiType = WALKER;
     state.enemies[2].aiState = IDLE;
-    state.enemies[2].isActive = false;
-
-    state.fire = new Entity();
-    state.fire->isActive = false;
-    state.fire->entityType = OBJECT;
-    state.fire->position = state.enemies[2].position;
-    state.fire->movement = glm::vec3(1, 0, 0);
-    state.fire->velocity = glm::vec3(1, 0, 0);
-    state.fire->speed = -2.0f;
-    state.fire->textureID = LoadTexture("fireball.png");
 }
 
 void ProcessInput() {
@@ -349,7 +305,7 @@ void Update() {
 
     while (deltaTime >= FIXED_TIMESTEP && state.player->isActive) {
         // Update. Notice it's FIXED_TIMESTEP. Not deltaTime
-        state.player->Update(FIXED_TIMESTEP, state.player, &state.enemies[state.player->enemiesKilled], state.fire, state.platforms, PLATFORM_COUNT);
+        state.player->Update(FIXED_TIMESTEP, state.player, &state.enemies[state.player->enemiesKilled], state.platforms, PLATFORM_COUNT);
 
         if (state.player->collidedLeft || state.player->collidedRight) {
             state.player->isActive = false;
@@ -357,21 +313,12 @@ void Update() {
         }
         for (int i = 0; i < ENEMY_COUNT; i++) {
             if (state.enemies[i].isActive) {
-                state.enemies[i].Update(FIXED_TIMESTEP, state.player, &state.enemies[i], state.fire, state.platforms, PLATFORM_COUNT);
+                state.enemies[i].Update(FIXED_TIMESTEP, state.player, &state.enemies[i], state.platforms, PLATFORM_COUNT);
             }
-            if (state.enemies[i].shootFire) {
-                state.fire->Update(FIXED_TIMESTEP, state.player, &state.enemies[i], state.fire, state.platforms, PLATFORM_COUNT);
-                if (glm::distance(state.fire->position, state.player->position) > 4.0) {
-                    state.fire->isActive = false;
-                    state.enemies[i].shootFire = false;
-                }
-                if (!state.fire->isActive && !state.player->isActive) {
-                    state.enemies[i].shootFire = false;
-                }
-            }
+
             if (state.flame->isActive) {
-                state.flame->Update(FIXED_TIMESTEP, state.player, &state.enemies[i], state.fire, state.platforms, PLATFORM_COUNT);
-                if (glm::distance(state.flame->position, state.player->position) > 4.0) {
+                state.flame->Update(FIXED_TIMESTEP, state.player, &state.enemies[i], state.platforms, PLATFORM_COUNT);
+                if (glm::distance(state.flame->position, state.player->position) > 3.0) {
                     state.flame->isActive = false;
                     state.player->shootFlame = false;
                 }
@@ -379,7 +326,6 @@ void Update() {
                     state.player->shootFlame = false;
                 }
             }
-            state.enemies[state.player->enemiesKilled].isActive = true;
         }
 
         deltaTime -= FIXED_TIMESTEP;
@@ -393,14 +339,14 @@ void Render() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     if (!state.player->isActive) {
-        DrawText(&program, font, "Game Over", 0.5f, -0.25f, glm::vec3(-2.0f, 1.0f, 0.0f));
+        DrawText(&program, font, "Game Over", 0.5f, -0.25f, glm::vec3(-1.0f, 1.0f, 0.0f));
     }
     else if (state.player->enemiesKilled == ENEMY_COUNT) {
-        DrawText(&program, font, "You Win", 0.5f, -0.25f, glm::vec3(-2.0f, 1.0f, 0.0f));
+        DrawText(&program, font, "You Win", 0.5f, -0.25f, glm::vec3(-1.0f, 1.0f, 0.0f));
     }
     else {
-        DrawText(&program, font, "Press Space to Jump", 0.5f, -0.25f, glm::vec3(-3.0f, 3.0f, 0.0f));
-        DrawText(&program, font, "Press 'X' to fire", 0.5f, -0.25f, glm::vec3(-3.0f, 2.0f, 0.0f));
+        DrawText(&program, font, "Hold Space to Fly", 0.5f, -0.25f, glm::vec3(-4.0f, 3.0f, 0.0f));
+        DrawText(&program, font, "Press 'X' to fire", 0.5f, -0.25f, glm::vec3(-4.0f, 2.0f, 0.0f));
     }
     for (int i = 0; i < PLATFORM_COUNT; i++) {
         state.platforms[i].Render(&program);
@@ -415,11 +361,6 @@ void Render() {
     if (state.flame->isActive) {
         state.flame->Render(&program);
     }
-
-    if (state.fire->isActive) {
-        state.fire->Render(&program);
-    }
-
     SDL_GL_SwapWindow(displayWindow);
 }
 

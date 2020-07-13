@@ -13,8 +13,8 @@
 
 enum EntityType { PLAYER, PLATFORM, ENEMY, OBJECT };
 
-enum AIType { WALKER, JUMPER, THROWER };
-enum AIState { IDLE, WALKING, JUMPING, THROWING };
+enum AIType { WALKER, JUMPER, FLYER };
+enum AIState { IDLE, WALKING, JUMPING, FLYING };
 
 class Entity {
 public:
@@ -63,7 +63,6 @@ public:
     bool collidedRight = false;
 
     bool shootFlame = false;
-    bool shootFire = false;
 
     Entity();
 
@@ -71,12 +70,12 @@ public:
     void CheckCollisionsY(Entity* objects, int objectCount);
     void CheckCollisionsX(Entity* objects, int objectCount);
 
-    void Update(float deltaTime, Entity* player, Entity* enemyTarget, Entity* attackObject, Entity* platforms, int platformCount);
+    void Update(float deltaTime, Entity* player, Entity* enemyTarget, Entity* platforms, int platformCount);
     void Render(ShaderProgram* program);
     void DrawSpriteFromTextureAtlas(ShaderProgram* program, GLuint textureID, int index);
 
-    void AI(Entity* player, Entity* attackObject);
-    void AIWaitAndGo(Entity* player, Entity* attackObject = nullptr);
+    void AI(Entity* player);
+    void AIWaitAndGo(Entity* player);
 
     void Projectile(Entity* target, Entity* player, float deltaTime);
 };

@@ -1,5 +1,7 @@
 #include "Entity.h"
 
+bool top = 0;
+
 Entity::Entity()
 {
     position = glm::vec3(0);
@@ -78,12 +80,12 @@ void Entity::CheckCollisionsX(Entity* objects, int objectCount)
     }
 }
 
-void Entity::AIWaitAndGo(Entity* player, Entity* attackObject)
+void Entity::AIWaitAndGo(Entity* player)
 {
     switch (aiState)
     {
     case IDLE:
-        if (glm::distance(position, player->position) < 3.0f) {
+        if (glm::distance(position, player->position) < 6.0f) {
             switch (aiType) {
                 case WALKER:
                     aiState = WALKING;
@@ -91,8 +93,8 @@ void Entity::AIWaitAndGo(Entity* player, Entity* attackObject)
                 case JUMPER:
                     aiState = JUMPING;
                     break;
-                case THROWER:
-                    aiState = THROWING;
+                case FLYER:
+                    aiState = FLYING;
                     break;
             }
         }
@@ -105,20 +107,6 @@ void Entity::AIWaitAndGo(Entity* player, Entity* attackObject)
         else {
             movement = glm::vec3(1, 0, 0);
         }
-        /*
-        if (horizontal == 0) {
-            movement = glm::vec3(1, 0, 0);
-            if (position.x > 4.0) {
-                horizontal = 1;
-            }
-        }
-        else {
-            movement = glm::vec3(-1, 0, 0);
-            if (position.x < 2.0) {
-                horizontal = 0;
-            }
-        }
-        */
         break;
 
     case JUMPING:
@@ -134,29 +122,23 @@ void Entity::AIWaitAndGo(Entity* player, Entity* attackObject)
         }
         break;
 
-    case THROWING:
-        if (glm::distance(position, player->position) < 3) {
-            movement = glm::vec3(0);
-            if (!shootFire) {
-                shootFire = true;
-                attackObject->isActive = true;
-                attackObject->position = position;
-                attackObject->position.x = position.x - width;
-            }
+    case FLYING:
+        if (player->position.x < position.x) {
+            movement = glm::vec3(-1, 0, 0);
         }
         else {
-            if (player->position.x < position.x) {
-                movement = glm::vec3(-1, 0, 0);
-            }
-            else {
-                movement = glm::vec3(1, 0, 0);
-            }
+            movement = glm::vec3(1, 0, 0);
+        }
+        if (collidedBottom) {
+            velocity.y += 1.0f;
+            acceleration.y = -0.25f;
+            collidedBottom = false;
         }
         break;
     }
 }
 
-void Entity::AI(Entity* player, Entity* attackObject) {
+void Entity::AI(Entity* player) {
     CheckCollisionsX(player, 1);
     CheckCollisionsY(player, 1);
 
@@ -169,8 +151,8 @@ void Entity::AI(Entity* player, Entity* attackObject) {
         AIWaitAndGo(player);
         break;
     
-    case THROWER:
-        AIWaitAndGo(player, attackObject);
+    case FLYER:
+        AIWaitAndGo(player);
         break;
 
     default:
@@ -200,37 +182,16 @@ void Entity::Projectile(Entity* target, Entity* player, float deltaTime) {
     }
 }
 
-void Entity::Update(float deltaTime, Entity* player, Entity* enemyTarget, Entity* attackObject, Entity* platforms, int platformCount)
+void Entity::Update(float deltaTime, Entity* player, Entity* enemyTarget, Entity* platforms, int platformCount)
 {
     if (isActive == false) return;
 
     if (entityType == ENEMY) {
-        AI(player, attackObject); //process input for an enemy
+        AI(player); //process input for an enemy
     }
     else if (entityType == OBJECT) {
         Projectile(enemyTarget, player, deltaTime);
     }
-
-    /*
-    if (animIndices != NULL) {
-        if (glm::length(movement) != 0) {
-            animTime += deltaTime;
-
-            if (animTime >= 0.25f)
-            {
-                animTime = 0.0f;
-                animIndex++;
-                if (animIndex >= animFrames)
-                {
-                    animIndex = 0;
-                }
-            }
-        }
-        else {
-            animIndex = 0;
-        }
-    }
-    */
 
     if (jump) {
         jump = false;
