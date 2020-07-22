@@ -1,0 +1,14 @@
+﻿  Effects.cpp
+  Entity.cpp
+  Level1.cpp
+  Level2.cpp
+  Map.cpp
+C:\Users\User\Desktop\Templates\VisualStudioSDLProject\SDLProject\Map.cpp(89,13): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\User\Desktop\Templates\VisualStudioSDLProject\SDLProject\Map.cpp(90,13): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+  Scene.cpp
+  ShaderProgram.cpp
+  Util.cpp
+C:\Users\User\Desktop\Templates\VisualStudioSDLProject\SDLProject\Util.cpp(34,20): warning C4018: '<': signed/unsigned mismatch
+  main.cpp
+  Generating Code...
+  SDLProject.vcxproj -> C:\Users\User\Desktop\Templates\VisualStudioSDLProject\SDLProject\Debug\SDLProject.exe
