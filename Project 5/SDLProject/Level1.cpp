@@ -64,12 +64,12 @@ void Level1::Initialize() {
     //state.enemies[0].isActive = false;
 }
 void Level1::Update(float deltaTime) {
-	state.player->Update(deltaTime, state.player, state.enemies, LEVEL1_ENEMY_COUNT, state.map);
+    state.player->Update(deltaTime, state.player, state.enemies, LEVEL1_ENEMY_COUNT, state.map);
 
     state.enemies->Update(deltaTime, state.player, state.enemies, 0, state.map);
 
     if (state.player->position.x >= 12) {
-        state.nextScene = 1;
+        state.nextScene = 2;
     }
 }
 void Level1::Render(ShaderProgram* program) {

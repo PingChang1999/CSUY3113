@@ -162,6 +162,7 @@ void Entity::AIWaitAndGo(Entity* player)
 
             CheckCollisionsX(player, 1);
             CheckCollisionsY(player, 1);
+      
             if (collidedLeft || collidedRight) {
                 player->isActive = false;
                 player->killed = true;

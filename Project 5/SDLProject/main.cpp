@@ -218,8 +218,8 @@ void Render() {
     currentScene->Render(&program);
 
     if (startScreen) {
-        Util::DrawText(&program, font, "Platformer", 0.5f, -0.25f, glm::vec3(-2.0f, 2.0f, 0.0f));
-        Util::DrawText(&program, font, "Press Enter to Continue", 0.5f, -0.25f, glm::vec3(-3.0f, 0.0f, 0.0f));
+        Util::DrawText(&program, font, "Platformer", 0.5f, -0.25f, glm::vec3(1.0f, -1.0f, 0.0f));
+        Util::DrawText(&program, font, "Press Enter to Continue", 0.5f, -0.25f, glm::vec3(1.0f, -2.0f, 0.0f));
     }
     else {
         if (lives == 0) {
