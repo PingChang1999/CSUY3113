@@ -13,31 +13,37 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "ShaderProgram.h"
 
-enum EntityType { PLAYER, PLATFORM, ENEMY, CUBE };
+#include "Mesh.h"
+
+enum EntityType { PLAYER, PLATFORM, ENEMY, CUBE, SHIP, FLOOR, CRATE };
 
 class Entity {
 public:
     EntityType entityType;
-    
+
     glm::vec3 position;
     glm::vec3 velocity;
     glm::vec3 acceleration;
     glm::vec3 rotation;
-    
+    glm::vec3 scale;
+
     float speed;
-    
+
+    bool billboard;
+    float width;
+    float height;
+    float depth;
+
     GLuint textureID;
-    float* vertices;
-    float* texCoords;
-    int numVertices;
-    
+    Mesh* mesh;
+
     glm::mat4 modelMatrix;
-    
+
     Entity();
-    
-    void Update(float deltaTime);
-    void Render(ShaderProgram *program);
+
+    bool CheckCollision(Entity* other);
+    void Update(float deltaTime, Entity* player, Entity* objects, int objectCount);
+    void Render(ShaderProgram* program);
+    void DrawBillboard(ShaderProgram* program);
 };
-
-
 

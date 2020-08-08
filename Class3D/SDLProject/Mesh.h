@@ -21,12 +21,12 @@
 #include <sstream>
 
 class Mesh {
-    public:
-    
-        void Render(ShaderProgram *program);
-        void LoadOBJ(const char *fileName);
-    
-        std::vector<float> vertices;
-        std::vector<float> uvs;
-        std::vector<float> normals;
+public:
+
+    void Render(ShaderProgram* program);
+    void LoadOBJ(const char* fileName, float textureRepeat);
+
+    std::vector<float> vertices;
+    std::vector<float> uvs;
+    std::vector<float> normals;
 };
