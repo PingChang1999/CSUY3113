@@ -152,6 +152,12 @@ void Entity::AIWaitAndGo(Entity* player)
             case FLYER:
                 aiState = FLYING;
                 break;
+            case H_DRIFTER:
+                aiState = H_DRIFTING;
+                break;
+            case V_DRIFTER:
+                aiState = V_DRIFTING;
+                break;
             }
         }
         break;
@@ -174,15 +180,19 @@ void Entity::AIWaitAndGo(Entity* player)
         break;
 
     case JUMPING:
-        if (player->position.x < position.x) {
-            movement = glm::vec3(-1, 0, 0);
+        if (player->position.y < position.y) {
+            movement = glm::vec3(0, -1, 0);
+
+            CheckCollisionsX(player, 1);
+            CheckCollisionsY(player, 1);
+
+            if (collidedTop || collidedBottom) {
+                player->isActive = false;
+                player->killed = true;
+            }
         }
         else {
-            movement = glm::vec3(1, 0, 0);
-        }
-        if (collidedBottom) {
-            velocity.y += 5.0f;
-            collidedBottom = false;
+            movement = glm::vec3(0, 1, 0);
         }
         break;
 
@@ -199,7 +209,23 @@ void Entity::AIWaitAndGo(Entity* player)
             collidedBottom = false;
         }
         break;
+
+    case H_DRIFTING:
+        if (h == 0) {
+            movement = glm::vec3(0, 1, 0);
+            if (position.y >= 4.0f) {
+                h = 1;
+            }
+        }
+        else {
+            movement = glm::vec3(0, -1, 0);
+            if (position.y <= -4.0f) {
+                h = 0;
+            }
+        }
+        break;
     }
+
 }
 
 void Entity::AI(Entity* player) {
@@ -224,18 +250,40 @@ void Entity::AI(Entity* player) {
     }
 }
 
+void Entity::Projectile(Entity* target, Entity* player, float deltaTime) {
+    collidedRight = false;
+    collidedLeft = false;
 
-void Entity::Update(float deltaTime, Entity* player, Entity* objects, int objectCount, Map* map)
+    velocity.x = movement.x * speed;
+    velocity += acceleration * deltaTime;
+
+    position.x += velocity.x * deltaTime;
+    CheckCollisionsX(target, 1);
+
+    modelMatrix = glm::mat4(1.0f);
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(position.x, position.y, 0.0f));
+
+    if (collidedRight || collidedLeft) {
+        isActive = false;
+        target->isActive = false;
+
+        player->enemiesKilled++;
+    }
+}
+void Entity::Update(float deltaTime, Entity* player, Entity* enemyTarget, Map* map)
 {
     if (isActive == false) return;
 
-    collidedTop = false;
-    collidedBottom = false;
-    collidedLeft = false;
-    collidedRight = false;
+    //collidedTop = false;
+    //collidedBottom = false;
+    //collidedLeft = false;
+    //collidedRight = false;
 
     if (entityType == ENEMY) {
         AI(player); //process input for an enemy
+    }
+    else if (entityType == ATTACK) {
+        Projectile(enemyTarget, player, deltaTime);
     }
 
     if (animIndices != NULL) {
@@ -263,15 +311,16 @@ void Entity::Update(float deltaTime, Entity* player, Entity* objects, int object
     }
 
     velocity.x = movement.x * speed;
+    velocity.y = movement.y * speed;
     velocity += acceleration * deltaTime; //keep adding to velocity with the acceleration
 
     position.y += velocity.y * deltaTime; // Move on Y
     CheckCollisionsY(map);
-    CheckCollisionsY(objects, objectCount); // Fix if needed
+    //CheckCollisionsY(objects, objectCount); // Fix if needed
 
     position.x += velocity.x * deltaTime; // Move on X
     CheckCollisionsX(map);
-    CheckCollisionsX(objects, objectCount); // Fix if needed
+    //CheckCollisionsX(objects, objectCount); // Fix if needed
 
     //if collided with something, what was it, do what?
 

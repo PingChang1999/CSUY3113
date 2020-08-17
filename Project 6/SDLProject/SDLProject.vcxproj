@@ -127,7 +127,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Level10.cpp" />
     <ClCompile Include="Level3.cpp" />
+    <ClCompile Include="Level4.cpp" />
+    <ClCompile Include="Level5.cpp" />
+    <ClCompile Include="Level6.cpp" />
+    <ClCompile Include="Level7.cpp" />
+    <ClCompile Include="Level8.cpp" />
+    <ClCompile Include="Level9.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="Entity.cpp" />
@@ -142,9 +149,16 @@
   <ItemGroup>
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Effects.h" />
+    <ClInclude Include="Level10.h" />
     <ClInclude Include="Level2.h" />
     <ClInclude Include="Level1.h" />
     <ClInclude Include="Level3.h" />
+    <ClInclude Include="Level4.h" />
+    <ClInclude Include="Level5.h" />
+    <ClInclude Include="Level6.h" />
+    <ClInclude Include="Level7.h" />
+    <ClInclude Include="Level8.h" />
+    <ClInclude Include="Level9.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Start.h" />
     <ClInclude Include="Util.h" />

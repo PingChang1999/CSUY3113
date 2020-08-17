@@ -23,6 +23,13 @@
 #include "Level1.h"
 #include "Level2.h"
 #include "Level3.h"
+#include "Level4.h"
+#include "Level5.h"
+#include "Level6.h"
+#include "Level7.h"
+#include "Level8.h"
+#include "Level9.h"
+#include "Level10.h"
 
 SDL_Window* displayWindow;
 bool gameIsRunning = true;
@@ -31,10 +38,10 @@ ShaderProgram program;
 glm::mat4 viewMatrix, modelMatrix, projectionMatrix;
 
 Scene* currentScene;
-Scene* sceneList[4];
+Scene* sceneList[11];
 
 Mix_Music* music;
-Mix_Chunk* bounce;
+Mix_Chunk* shoot;
 
 GLuint font;
 
@@ -65,10 +72,10 @@ void Initialize() {
 
     font = Util::LoadTexture("font1.png");
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
-    music = Mix_LoadMUS("dooblydoo.mp3");
+    music = Mix_LoadMUS("space.mp3");
     Mix_PlayMusic(music, -1);
 
-    bounce = Mix_LoadWAV("bounce.wav");
+    shoot = Mix_LoadWAV("shootsound.wav");
 
     viewMatrix = glm::mat4(1.0f);
     modelMatrix = glm::mat4(1.0f);
@@ -88,11 +95,18 @@ void Initialize() {
     sceneList[1] = new Level1();
     sceneList[2] = new Level2();
     sceneList[3] = new Level3();
+    sceneList[4] = new Level4();
+    sceneList[5] = new Level5();
+    sceneList[6] = new Level6();
+    sceneList[7] = new Level7();
+    sceneList[8] = new Level8();
+    sceneList[9] = new Level9();
+    sceneList[10] = new Level10();
     SwitchToScene(sceneList[0]);
 
     effects = new Effects(projectionMatrix, viewMatrix); //to know dimensions of the window to display
 
-    //effects->Start(FADEIN, 0.5f);
+    effects->Start(FADEIN, 0.5f);
 
 }
 
@@ -127,10 +141,6 @@ void ProcessInput() {
                 break;
 
             case SDLK_SPACE:
-                if (currentScene->state.player->collidedBottom) {
-                    currentScene->state.player->jump = true;
-                    Mix_PlayChannel(-1, bounce, 0);
-                }
                 break;
 
             case SDLK_RETURN:
@@ -153,7 +163,7 @@ void ProcessInput() {
         currentScene->state.player->movement.x = 1.0f;
         currentScene->state.player->animIndices = currentScene->state.player->animRight;
     }
-    else if (keys[SDL_SCANCODE_UP]) {
+    if (keys[SDL_SCANCODE_UP]) {
         currentScene->state.player->movement.y = 1.0f;
         currentScene->state.player->animIndices = currentScene->state.player->animUp;
     }
@@ -162,6 +172,15 @@ void ProcessInput() {
         currentScene->state.player->animIndices = currentScene->state.player->animDown;
     }
 
+    if (keys[SDL_SCANCODE_X]) {
+        if (!currentScene->state.player->shootFire) {
+            currentScene->state.player->shootFire = true;
+            Mix_PlayChannel(-1, shoot, 0);
+            currentScene->state.fire->position = currentScene->state.player->position;
+            currentScene->state.fire->position.x = currentScene->state.player->position.x + currentScene->state.player->width;
+            currentScene->state.fire->isActive = true;
+        }
+    }
 
     if (glm::length(currentScene->state.player->movement) > 1.0f) {
         currentScene->state.player->movement = glm::normalize(currentScene->state.player->movement);
@@ -243,7 +262,7 @@ void Render() {
             currentScene->state.player->isActive = false;
         }
         else if (currentScene->state.player->win) {
-            Util::DrawText(&program, font, "You Win", 0.5f, -0.25f, glm::vec3(12.0f, -2.0f, 0.0f));
+            Util::DrawText(&program, font, "You Win", 0.5f, -0.25f, glm::vec3(160.0f, -2.0f, 0.0f));
             currentScene->state.player->isActive = false;
         }
         else {

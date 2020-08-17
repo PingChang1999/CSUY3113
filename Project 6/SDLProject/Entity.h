@@ -13,10 +13,10 @@
 #include "ShaderProgram.h"
 #include "Map.h"
 
-enum EntityType { PLAYER, PLATFORM, ENEMY };
+enum EntityType { PLAYER, PLATFORM, ENEMY, ATTACK};
 
-enum AIType { WALKER, JUMPER, FLYER };
-enum AIState { IDLE, WALKING, JUMPING, FLYING };
+enum AIType { WALKER, JUMPER, FLYER, H_DRIFTER, V_DRIFTER };
+enum AIState { IDLE, WALKING, JUMPING, FLYING, H_DRIFTING, V_DRIFTING };
 
 class Entity {
 public:
@@ -35,6 +35,11 @@ public:
 
     bool jump = false;
     float jumpPower = 0;
+
+    bool shootFire = false;
+
+    bool h = 0;
+    int h_counter = 0;
 
     float speed;
 
@@ -59,6 +64,8 @@ public:
     bool killed = false;
     bool win = false;
 
+    int enemiesKilled = 0;
+
     bool collidedTop = false;
     bool collidedBottom = false;
     bool collidedLeft = false;
@@ -73,11 +80,13 @@ public:
     void CheckCollisionsX(Map* map); //checking collisions against the map
     void CheckCollisionsY(Map* map);
 
-    void Update(float deltaTime, Entity* player, Entity* objects, int objectCount, Map* map);
+    void Update(float deltaTime, Entity* player, Entity* enemyTarget, Map* map);
     void Render(ShaderProgram* program);
     void DrawSpriteFromTextureAtlas(ShaderProgram* program, GLuint textureID, int index);
 
     void AI(Entity* player);
     //void AIWalker();
     void AIWaitAndGo(Entity* player);
+
+    void Projectile(Entity* target, Entity* player, float deltaTime);
 };

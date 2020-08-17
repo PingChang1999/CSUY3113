@@ -17,6 +17,8 @@ struct GameState {
 	Map* map;
 	Entity* player;
 	Entity* enemies;
+	Entity* fire;
+	Entity* target;
 	int nextScene;
 };
 

@@ -48,6 +48,27 @@
     <ClCompile Include="Start.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Level4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Level5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Level6.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Level7.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Level8.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Level9.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Level10.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShaderProgram.h">
@@ -78,6 +99,27 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Start.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Level4.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Level5.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Level6.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Level7.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Level8.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Level9.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Level10.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
