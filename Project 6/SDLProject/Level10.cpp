@@ -30,7 +30,7 @@ void Level10::Initialize() {
     state.player->movement = glm::vec3(0);
     state.player->acceleration = glm::vec3(0, 0, 0);
     state.player->velocity = glm::vec3(0);
-    state.player->speed = 5.0f;
+    state.player->speed = 6.0f;
     state.player->textureID = Util::LoadTexture("spaceship.png");
 
     state.player->height = 0.8f;

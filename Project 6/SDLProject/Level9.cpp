@@ -30,7 +30,7 @@ void Level9::Initialize() {
     state.player->movement = glm::vec3(0);
     state.player->acceleration = glm::vec3(0, 0, 0);
     state.player->velocity = glm::vec3(0);
-    state.player->speed = 3.0f;
+    state.player->speed = 4.0f;
     state.player->textureID = Util::LoadTexture("spaceship.png");
 
     state.player->height = 0.8f;
@@ -203,7 +203,7 @@ void Level9::Update(float deltaTime) {
     }
 
     if (state.player->position.x >= 160) {
-        state.player->win = true;
+        state.nextScene = 10;
     }
 }
 void Level9::Render(ShaderProgram* program) {

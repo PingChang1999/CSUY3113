@@ -68,9 +68,9 @@ void Initialize() {
 
     glViewport(0, 0, 640, 480);
 
-    program.Load("shaders/vertex_lit.glsl", "shaders/fragment_lit.glsl");
+    program.Load("shaders/vertex_textured.glsl", "shaders/fragment_textured.glsl");
 
-    font = Util::LoadTexture("font1.png");
+    font = Util::LoadTexture("font2.png");
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
     music = Mix_LoadMUS("space.mp3");
     Mix_PlayMusic(music, -1);
@@ -253,8 +253,12 @@ void Render() {
     currentScene->Render(&program);
 
     if (startScreen) {
-        Util::DrawText(&program, font, "Platformer", 0.5f, -0.25f, glm::vec3(1.0f, -1.0f, 0.0f));
+        Util::DrawText(&program, font, "Speed Up!", 0.5f, -0.25f, glm::vec3(2.0f, -1.0f, 0.0f));
         Util::DrawText(&program, font, "Press Enter to Continue", 0.5f, -0.25f, glm::vec3(1.0f, -2.0f, 0.0f));
+        Util::DrawText(&program, font, "Use Arrows Keys to Move", 0.5f, -0.25f, glm::vec3(2.0f, -3.0f, 0.0f));
+        Util::DrawText(&program, font, "Press X to Shoot", 0.5f, -0.25f, glm::vec3(2.0f, -4.0f, 0.0f));
+        Util::DrawText(&program, font, "Shooting only work against the boss", 0.5f, -0.25f, glm::vec3(1.0f, -5.0f, 0.0f));
+        Util::DrawText(&program, font, "Your speed is different every level", 0.5f, -0.25f, glm::vec3(1.0f, -6.0f, 0.0f));
     }
     else {
         if (lives == 0) {
